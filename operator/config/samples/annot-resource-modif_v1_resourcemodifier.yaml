@@ -1,0 +1,9 @@
+apiVersion: annot-resource-modif.ericsson.com/v1
+kind: ResourceModifier
+metadata:
+  labels:
+    app.kubernetes.io/name: operator
+    app.kubernetes.io/managed-by: kustomize
+  name: resourcemodifier-sample
+spec:
+  # TODO(user): Add fields here

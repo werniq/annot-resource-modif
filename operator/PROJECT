@@ -7,4 +7,14 @@ layout:
 - go.kubebuilder.io/v4
 projectName: operator
 repo: ericsson.com/resource-modif-annotations
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: ericsson.com
+  group: annot-resource-modif
+  kind: ResourceModifier
+  path: ericsson.com/resource-modif-annotations/api/v1
+  version: v1
 version: "3"

@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- annot-resource-modif_v1_resourcemodifier.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples
