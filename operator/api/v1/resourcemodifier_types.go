@@ -44,8 +44,11 @@ type ResourceModifierSpec struct {
 
 // ResourceModifierStatus defines the observed state of ResourceModifier.
 type ResourceModifierStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Conditions are used to describe current state of ResourceModifier.
+	// In case of errors, this field is updated, indicating that error had occurred.
+	// If Reconciliation was successful - this fields will also be updated, with
+	// successful condition type and appropriate message.
+	Conditions map[string]string `json:"conditions"`
 }
 
 // +kubebuilder:object:root=true
