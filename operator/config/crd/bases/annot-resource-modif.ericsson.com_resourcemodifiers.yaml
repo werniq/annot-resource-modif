@@ -1,0 +1,103 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  name: resourcemodifiers.annot-resource-modif.ericsson.com
+spec:
+  group: annot-resource-modif.ericsson.com
+  names:
+    kind: ResourceModifier
+    listKind: ResourceModifierList
+    plural: resourcemodifiers
+    singular: resourcemodifier
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: ResourceModifier is the Schema for the resourcemodifiers API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ResourceModifierSpec defines the desired state of ResourceModifier.
+            properties:
+              annotations:
+                description: "Annotations are set of pre-defined rules of how the
+                  resource will be modified.\n\nFor example: if user has specified
+                  following annotations, and a Pod resource:\n\t- removeAnyFinalizers\n
+                  - sleep:50\nIt will result in removing any finalizers Pod currently
+                  has, and executing a command to sleep for 50 seconds.\n\nAll examples
+                  of annotations will be provided in README."
+                items:
+                  type: string
+                type: array
+              resourceData:
+                description: |-
+                  ResourceData will be used to identify the particular resource which user wishes to update.
+                  If data specified in this field turned out to return more than 1 resource, it will result in error.
+                properties:
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: Labels field will be used to find a specific Kubernetes
+                      Resource by watching Labels
+                    type: object
+                  name:
+                    description: Name is used to get a resource with specific metadata.name
+                    type: string
+                  namespace:
+                    default: default
+                    description: Namespace specifies namespace in which Resources
+                      should be searched. Default - default
+                    type: string
+                  resourceType:
+                    description: ResourceType is a required
+                    type: string
+                required:
+                - labels
+                - name
+                - namespace
+                - resourceType
+                type: object
+            required:
+            - annotations
+            - resourceData
+            type: object
+          status:
+            description: ResourceModifierStatus defines the observed state of ResourceModifier.
+            properties:
+              conditions:
+                additionalProperties:
+                  type: string
+                description: |-
+                  Conditions are used to describe current state of ResourceModifier.
+                  In case of errors, this field is updated, indicating that error had occurred.
+                  If Reconciliation was successful - this fields will also be updated, with
+                  successful condition type and appropriate message.
+                type: object
+            required:
+            - conditions
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

@@ -37,6 +37,7 @@ import (
 
 	annotresourcemodifv1 "ericsson.com/resource-modif-annotations/api/v1"
 	"ericsson.com/resource-modif-annotations/internal/controller"
+	webhookannotresourcemodifv1 "ericsson.com/resource-modif-annotations/internal/webhook/v1"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -123,6 +124,13 @@ func main() {
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ResourceModifier")
 		os.Exit(1)
+	}
+	// nolint:goconst
+	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+		if err = webhookannotresourcemodifv1.SetupResourceModifierWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "ResourceModifier")
+			os.Exit(1)
+		}
 	}
 	// +kubebuilder:scaffold:builder
 
