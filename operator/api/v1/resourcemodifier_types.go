@@ -20,16 +20,36 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type ResourceData struct{}
+// TargetResourceData is an object which will be used to retrieve a Kubernetes Resource,
+// which the user wants to edit.
+// This class will provide multiple ways to get a specific resource:
+// 1. By ResourceType, and Name (optionally - and namespace)
+// 2. By ResourceType, and Namespace
+// 3. ResourceType and Labels
+// At most one of the above should be chosen. Upon finding a match no further searches will be performed.
+//
+// TODO: Potentially, it may be possible to retrieve a list of objects, and perform modification on a list. However, I will introduce another CRD for this purpose
+type TargetResourceData struct {
+	// Labels field will be used to find a specific Kubernetes Resource by watching Labels
+	Labels map[string]string `json:"labels"`
+
+	// Name is used to get a resource with specific metadata.name
+	Name string `json:"name"`
+
+	// Namespace specifies namespace in which Resources should be searched. Default - default
+	// +kubebuilder:default=default
+	Namespace string `json:"namespace"`
+
+	// ResourceType is a required
+	// +required
+	ResourceType string `json:"resourceType"`
+}
 
 // ResourceModifierSpec defines the desired state of ResourceModifier.
 type ResourceModifierSpec struct {
-	// ResourceType field identifies the type of resource to be modified (e.g. pod, deployment, node, etc)
-	ResourceType string `json:"resourceType"`
-
 	// ResourceData will be used to identify the particular resource which user wishes to update.
 	// If data specified in this field turned out to return more than 1 resource, it will result in error.
-	ResourceData ResourceData `json:"resourceData"`
+	ResourceData TargetResourceData `json:"resourceData"`
 
 	// Annotations are set of pre-defined rules of how the resource will be modified.
 	//
