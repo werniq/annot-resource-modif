@@ -1,5 +1,47 @@
 # operator
-// TODO(user): Add simple overview of use/purpose
+The **Resource Modifier Controller** is a Kubernetes operator built with Kubebuilder. 
+It allows users to modify existing Kubernetes resources based on custom-defined rules 
+and annotations provided through a Custom Resource Definition.
+
+### Key Features
+- Modify various Kubernetes resource types (e.g., Pods, Deployments, Nodes).
+- Use annotations to define specific actions for resource modification.
+- Examples of supported annotations:
+    - `removeAnyFinalizers`: Removes all finalizers from a resource.
+    - `addLabel:<key>:<value>`: Adds a label to a resource.
+    - `removeLabel:<key>`: Removes a label from a resource.
+    - `scale:<replicas>`: Scales a scalable resource like a Deployment.
+    - `updateImage:<containerName>:<newImage>`: Updates the container image.
+
+### Supported Annotations
+
+1. `removeAnyFinalizer` - deletes all finalizers from a resource, to allow it's deletion.
+2. `addLabel:<key>:<value>` - adds a specific label to the resource
+3. `removeLabel:<key>` - removes specific label from resource
+4. `addAnnotation:<key>:<value>` - adds specific annotation 
+5. `removeAnnotation:<key>` - removes annotation by it's key
+6. `scale:<replicas>` - Scale the resource (e.g. Deployment), if possible
+7. `restart` - Restart the resource (if applicable, e.g. Pod or Deployment)
+8. `taint:<key>:<value>:<effect>` - Applies a taint to a Node resource
+9. `toleration:<key>:<value>:<effect>` - Adds a toleration to the resource
+10. `setResourceLimit:<cpu>:<memory>` - Sets CPU and memory limit for the resource (e.g. Pod or Container). Use `default` keyword if You don't wish to modify resource limit. Example: `200m:default`, or `default:500Mi`
+11. `setResourceRequest:<cpu>:<memory>` - Set CPU and memory Request, if applicable. Same rules as in `setResourceLimit`
+12. `addEnvironmentVariable:<name>:<value>` - Adds an environment variable to a container in a Pod.
+13. `deleteResource` - Entirely deletes the resource.
+14. `updateImage:<containerName>:<image>` - Update the image of specific container.
+15. `addVolume:<volumeName>` - Adds a volume to a Pod or Deployment.
+16. `removeVolume:<volumeName>` - Removes a volume
+17. `patch:<jsonPath>:<value>` - Apply a json patch to the resource.
+18. `addOwnerReference:<kind>:<name>:<uid>` - Add new owner reference
+19. `cordonNode` - Mark node as unschedulable.
+20. `uncordonNode` - Mark node as schedulable.
+21. `evictPods` - Evict all pods running on the Node.
+22. `addAffinity:<type>:<key>:<operator>:<value>` - Adds affinity rules to Pod or Deployment.
+23. `setServiceType:<type>` - Updates a type of service
+24. `setIngressHost:<host>` - Updates the host field in an Ingress.
+25. `addConfigMapRef:<name>:<path>` - Mounts a ConfigMap as a volume of a Pod.
+
+
 
 ## Description
 // TODO(user): An in-depth paragraph about your project and overview of use
@@ -65,50 +107,3 @@ make uninstall
 ```sh
 make undeploy
 ```
-
-## Project Distribution
-
-Following are the steps to build the installer and distribute this project to users.
-
-1. Build the installer for the image built and published in the registry:
-
-```sh
-make build-installer IMG=<some-registry>/operator:tag
-```
-
-NOTE: The makefile target mentioned above generates an 'install.yaml'
-file in the dist directory. This file contains all the resources built
-with Kustomize, which are necessary to install this project without
-its dependencies.
-
-2. Using the installer
-
-Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project, i.e.:
-
-```sh
-kubectl apply -f https://raw.githubusercontent.com/<org>/operator/<tag or branch>/dist/install.yaml
-```
-
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
-
-**NOTE:** Run `make help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
-
-## License
-
-Copyright 2025.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
