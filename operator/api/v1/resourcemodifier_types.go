@@ -37,7 +37,8 @@ type ResourceModifierSpec struct {
 	// 	- removeAnyFinalizers
 	//  - sleep:50
 	// It will result in removing any finalizers Pod currently has, and executing a command to sleep for 50 seconds.
-	// All examples will be provided in README.
+	//
+	// All examples of annotations will be provided in README.
 	Annotations []string `json:"annotations"`
 }
 
