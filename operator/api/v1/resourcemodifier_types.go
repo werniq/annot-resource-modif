@@ -20,16 +20,25 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+type ResourceData struct{}
 
 // ResourceModifierSpec defines the desired state of ResourceModifier.
 type ResourceModifierSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// ResourceType field identifies the type of resource to be modified (e.g. pod, deployment, node, etc)
+	ResourceType string `json:"resourceType"`
 
-	// Foo is an example field of ResourceModifier. Edit resourcemodifier_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// ResourceData will be used to identify the particular resource which user wishes to update.
+	// If data specified in this field turned out to return more than 1 resource, it will result in error.
+	ResourceData ResourceData `json:"resourceData"`
+
+	// Annotations are set of pre-defined rules of how the resouce will be modified.
+	//
+	// For example: if user has specified following annotations, and a Pod resource:
+	// 	- removeAnyFinalizers
+	//  - sleep:50
+	// It will result in removing any finalizers Pod currently has, and executing a command to sleep for 50 seconds.
+	// All examples will be provided in README.
+	Annotations []string `json:"annotations"`
 }
 
 // ResourceModifierStatus defines the observed state of ResourceModifier.
