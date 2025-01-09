@@ -31,7 +31,7 @@ type ResourceModifierSpec struct {
 	// If data specified in this field turned out to return more than 1 resource, it will result in error.
 	ResourceData ResourceData `json:"resourceData"`
 
-	// Annotations are set of pre-defined rules of how the resouce will be modified.
+	// Annotations are set of pre-defined rules of how the resource will be modified.
 	//
 	// For example: if user has specified following annotations, and a Pod resource:
 	// 	- removeAnyFinalizers
