@@ -69,7 +69,17 @@ func (r *ResourceModifierReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
-	r.Client.Get()
+	objectKey, err := r.determineResourceSelector(resourceModifier.Spec.ResourceData)
+	if err != nil {
+		log.Error(err, "Error determining selector. Make sure that either Name or Labels are specified")
+		return ctrl.Result{}, err
+	}
+
+	err = r.Client.Get(ctx, objectKey, resource)
+	if err != nil {
+		log.Error(err, "Error while trying to get an object")
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }
