@@ -94,7 +94,7 @@ func (r *ResourceModifierReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	for _, annotation := range resourceModifier.Spec.Annotations {
-		err = r.executeAnnotation(annotation, resource)
+		err = r.executeAnnotation(annotation, resource, resourceModifier)
 		if err != nil {
 			updateErr := r.updateErrorStatus(resourceModifier, err.Error())
 			if updateErr != nil {

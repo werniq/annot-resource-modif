@@ -11,6 +11,8 @@ import (
 	"testing"
 )
 
+var k8sClient client.Client
+
 func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testing.T) {
 	scheme := runtime.NewScheme()
 	assert.Nil(t, v1.AddToScheme(scheme))
@@ -23,7 +25,10 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 			Finalizers: []string{"test-finalizer"},
 		},
 	}
-	rm := v1.ResourceModifier{
+	rm := &v1.ResourceModifier{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "rm-test",
+		},
 		Spec: v1.ResourceModifierSpec{
 			ResourceData: v1.TargetResourceData{
 				Name:         "test-pod",
@@ -35,10 +40,10 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 			},
 		},
 	}
-
+	rm.Status.Conditions = make(map[string]string)
 	k8sClient = fake.NewClientBuilder().
 		WithScheme(scheme).
-		WithObjects(pod).
+		WithObjects(pod, rm).
 		Build()
 	type fields struct {
 		Client client.Client
@@ -57,12 +62,12 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 		{
 			name: "Successful finalizer remove",
 			fields: fields{
-				Client: nil,
-				Scheme: nil,
+				Client: k8sClient,
+				Scheme: scheme,
 			},
 			args: args{
 				resource: pod,
-				rm:       rm,
+				rm:       *rm,
 			},
 			wantErr: false,
 		},
