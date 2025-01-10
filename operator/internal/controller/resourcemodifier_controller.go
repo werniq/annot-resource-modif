@@ -97,6 +97,8 @@ func (r *ResourceModifierReconciler) determineResourceType(resourceData annotres
 		return &v2.Pod{}, nil
 	case "deployment":
 		return &v1.Deployment{}, nil
+	case "node":
+		return &v2.Node{}, nil
 	case "cronjob":
 		return &v3.CronJob{}, nil
 	case "pv":
