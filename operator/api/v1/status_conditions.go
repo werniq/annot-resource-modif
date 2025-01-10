@@ -15,10 +15,13 @@ type ResourceModifierStatus struct {
 	Conditions map[string]string `json:"conditions"`
 }
 
-func (r *ResourceModifierStatus) errorStatus() {
-
+func (r *ResourceModifierStatus) errorStatus(condition string) {
+	r.Conditions[StatusError] = condition
 }
 
-func (r *ResourceModifierStatus) successfulStatus() {
-
+func (r *ResourceModifierStatus) successfulStatus(condition string) {
+	if _, exists := r.Conditions[StatusError]; exists {
+		delete(r.Conditions, StatusError)
+	}
+	r.Conditions[StatusSuccess] = condition
 }
