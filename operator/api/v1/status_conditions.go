@@ -17,12 +17,12 @@ type ResourceModifierStatus struct {
 	Conditions map[string]string `json:"conditions"`
 }
 
-// ErrorStatus initialzes/updates the Conditions field with key StatusError and reason as value
+// ErrorStatus initializes/updates the Conditions field with key StatusError and reason as value
 func (r *ResourceModifierStatus) ErrorStatus(reason string) {
 	r.Conditions[StatusError] = reason
 }
 
-// SuccessfulStatus initialzes/updates the Conditions field with key StatusSuccess and reason as value
+// SuccessfulStatus initializes/updates the Conditions field with key StatusSuccess and reason as value
 func (r *ResourceModifierStatus) SuccessfulStatus(reason string) {
 	if _, exists := r.Conditions[StatusError]; exists {
 		delete(r.Conditions, StatusError)
