@@ -1,13 +1,16 @@
 package controller
 
 import (
+	"context"
 	v1 "ericsson.com/resource-modif-annotations/api/v1"
+	"errors"
 	"github.com/stretchr/testify/assert"
 	v2 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
 	"testing"
 )
 
@@ -45,6 +48,16 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 		WithScheme(scheme).
 		WithObjects(pod, rm).
 		Build()
+
+	updateErrK8sClient := fake.NewClientBuilder().
+		WithScheme(scheme).
+		WithInterceptorFuncs(interceptor.Funcs{
+			Update: func(ctx context.Context, client client.WithWatch, obj client.Object, opts ...client.UpdateOption) error {
+				return errors.New("error during update")
+			}}).
+		WithObjects(pod, rm).
+		Build()
+
 	type fields struct {
 		Client client.Client
 		Scheme *runtime.Scheme
@@ -59,6 +72,19 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 		args    args
 		wantErr bool
 	}{
+
+		{
+			name: "Error while removing finalizer [UPDATE ERROR]",
+			fields: fields{
+				Client: updateErrK8sClient,
+				Scheme: scheme,
+			},
+			args: args{
+				resource: pod,
+				rm:       *rm,
+			},
+			wantErr: true,
+		},
 		{
 			name: "Successful finalizer remove",
 			fields: fields{
