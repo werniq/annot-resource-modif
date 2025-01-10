@@ -65,6 +65,7 @@ func (r *ResourceModifierReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		log.Error(err, "Error determining resource type. Wrong resource type specified")
 		updateErr := r.updateErrorStatus(resourceModifier, err.Error())
 		if updateErr != nil {
+			log.Error(updateErr, "Error Updating Resource's Status")
 			return ctrl.Result{}, updateErr
 		}
 		return ctrl.Result{}, err
@@ -75,6 +76,7 @@ func (r *ResourceModifierReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		log.Error(err, "Error determining selector. Make sure that either Name or Labels are specified")
 		updateErr := r.updateErrorStatus(resourceModifier, err.Error())
 		if updateErr != nil {
+			log.Error(updateErr, "Error Updating Resource's Status")
 			return ctrl.Result{}, updateErr
 		}
 		return ctrl.Result{}, err
@@ -85,6 +87,7 @@ func (r *ResourceModifierReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		log.Error(err, "Error while trying to get an object")
 		updateErr := r.updateErrorStatus(resourceModifier, err.Error())
 		if updateErr != nil {
+			log.Error(updateErr, "Error Updating Resource's Status")
 			return ctrl.Result{}, updateErr
 		}
 		return ctrl.Result{}, err
@@ -95,6 +98,7 @@ func (r *ResourceModifierReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if err != nil {
 			updateErr := r.updateErrorStatus(resourceModifier, err.Error())
 			if updateErr != nil {
+				log.Error(updateErr, "Error Updating Resource's Status")
 				return ctrl.Result{}, updateErr
 			}
 			return ctrl.Result{}, err
