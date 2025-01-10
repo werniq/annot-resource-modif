@@ -126,7 +126,7 @@ func (r *ResourceModifierReconciler) determineResourceType(resourceData annotres
 
 func (r *ResourceModifierReconciler) determineResourceSelector(resourceData annotresourcemodifv1.TargetResourceData) (client.ObjectKey, error) {
 	if resourceData.Labels != nil {
-
+		// TODO: implement listing by labels
 	}
 
 	objectKey := client.ObjectKey{}
