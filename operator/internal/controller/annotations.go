@@ -41,3 +41,31 @@ func (r *ResourceModifierReconciler) executeRemoveAnyFinalizerAnnotation(resourc
 
 	return nil
 }
+
+// executeAddFinalizer adds provided finalizer to the target resource.
+func (r *ResourceModifierReconciler) executeAddFinalizer(resource client.Object,
+	rm annotresourcemodifv1.ResourceModifier, finalizer string) error {
+	existentFinalizers := resource.GetFinalizers()
+	existentFinalizers = append(existentFinalizers, finalizer)
+
+	resource.SetFinalizers(existentFinalizers)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	err := r.Client.Update(ctx, resource)
+	if err != nil {
+		return err
+	}
+
+	err = r.updateStatusSuccess(rm, successRemovingFinalizers)
+	if err != nil {
+		updateErr := r.updateErrorStatus(rm, err.Error())
+		if updateErr != nil {
+			return updateErr
+		}
+		return err
+	}
+
+	return nil
+}

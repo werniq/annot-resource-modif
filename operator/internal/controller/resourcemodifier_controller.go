@@ -124,6 +124,10 @@ func (r *ResourceModifierReconciler) executeAnnotation(annotation string, resour
 	switch annotation {
 	case "removeAnyFinalizers":
 		return r.executeRemoveAnyFinalizerAnnotation(resource, rm)
+	case "addFinalizer":
+		// TODO: check this in validator
+		finalizer := strings.Split(annotation, ":")[1]
+		return r.executeAddFinalizer(resource, rm, finalizer)
 	}
 
 	return nil
