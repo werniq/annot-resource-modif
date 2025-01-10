@@ -9,7 +9,6 @@ func (r *ResourceModifierReconciler) initResourceModifierStatus(resource v1.Reso
 	resource.Status.Conditions = make(map[string]string)
 }
 
-func (r *ResourceModifierReconciler) updateStatus(resource v1.ResourceModifier, condition, reason string) (ctrl.Result, error) {
-	resource.Status.Conditions = make(map[string]string)
+func (r *ResourceModifierReconciler) updateStatusSuccess(resource v1.ResourceModifier, reason string) (ctrl.Result, error) {
 	return ctrl.Result{}, nil
 }
