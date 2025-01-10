@@ -34,7 +34,7 @@ func (r *ResourceModifierReconciler) updateStatusSuccess(resource v1.ResourceMod
 
 	err := r.Client.Update(ctx, &resource)
 	if err != nil {
-
+		return r.updateErrorStatus(resource, err.Error())
 	}
 
 	return ctrl.Result{}, nil
