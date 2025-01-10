@@ -119,10 +119,11 @@ func (r *ResourceModifierReconciler) SetupWithManager(mgr ctrl.Manager) error {
 // executeAnnotation
 //
 // This function observes the given annotation, and performs provided action on the resource.
-func (r *ResourceModifierReconciler) executeAnnotation(annotation string, resource client.Object) error {
+func (r *ResourceModifierReconciler) executeAnnotation(annotation string, resource client.Object,
+	rm annotresourcemodifv1.ResourceModifier) error {
 	switch annotation {
 	case "removeAnyFinalizers":
-		return r.executeRemoveAnyFinalizerAnnotation(resource)
+		return r.executeRemoveAnyFinalizerAnnotation(resource, rm)
 	}
 
 	return nil
