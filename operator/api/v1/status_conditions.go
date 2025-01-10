@@ -1,8 +1,10 @@
 package v1
 
 const (
+	// StatusSuccess is a key to Conditions map, which indicates that there were no errors during Reconciliation
 	StatusSuccess = "Success"
 
+	// StatusError is a key to Conditions map, which indicates that there were errors during Reconciliation
 	StatusError = "Error"
 )
 
@@ -15,13 +17,15 @@ type ResourceModifierStatus struct {
 	Conditions map[string]string `json:"conditions"`
 }
 
-func (r *ResourceModifierStatus) ErrorStatus(condition string) {
-	r.Conditions[StatusError] = condition
+// ErrorStatus initialzes/updates the Conditions field with key StatusError and reason as value
+func (r *ResourceModifierStatus) ErrorStatus(reason string) {
+	r.Conditions[StatusError] = reason
 }
 
-func (r *ResourceModifierStatus) SuccessfulStatus(condition string) {
+// SuccessfulStatus initialzes/updates the Conditions field with key StatusSuccess and reason as value
+func (r *ResourceModifierStatus) SuccessfulStatus(reason string) {
 	if _, exists := r.Conditions[StatusError]; exists {
 		delete(r.Conditions, StatusError)
 	}
-	r.Conditions[StatusSuccess] = condition
+	r.Conditions[StatusSuccess] = reason
 }
