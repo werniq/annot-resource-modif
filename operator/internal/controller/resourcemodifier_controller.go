@@ -124,6 +124,8 @@ func (r *ResourceModifierReconciler) determineResourceType(resourceData annotres
 	return nil, errs.New(resourceNotFound + resourceData.ResourceType)
 }
 
+// determineResourceSelector
+// This function observes provided resourceData, and constructs an ObjectKey, to retrieve a resource.
 func (r *ResourceModifierReconciler) determineResourceSelector(resourceData annotresourcemodifv1.TargetResourceData) (client.ObjectKey, error) {
 	if resourceData.Labels != nil {
 		// TODO: implement listing by labels
