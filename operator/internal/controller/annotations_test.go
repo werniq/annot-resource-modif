@@ -49,6 +49,7 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 			},
 		},
 	}
+
 	rm.Status.Conditions = make(map[string]string)
 	k8sClient = fake.NewClientBuilder().
 		WithScheme(scheme).
@@ -72,6 +73,7 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 		resource client.Object
 		rm       v1.ResourceModifier
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -115,6 +117,7 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &ResourceModifierReconciler{
@@ -191,6 +194,7 @@ func TestResourceModifierReconciler_executeAddFinalizer(t *testing.T) {
 		rm        v1.ResourceModifier
 		finalizer string
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -237,6 +241,7 @@ func TestResourceModifierReconciler_executeAddFinalizer(t *testing.T) {
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &ResourceModifierReconciler{
