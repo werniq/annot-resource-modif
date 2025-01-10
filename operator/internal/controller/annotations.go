@@ -4,6 +4,7 @@ import (
 	"context"
 	annotresourcemodifv1 "ericsson.com/resource-modif-annotations/api/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"slices"
 	"time"
 )
 
@@ -46,6 +47,9 @@ func (r *ResourceModifierReconciler) executeRemoveAnyFinalizerAnnotation(resourc
 func (r *ResourceModifierReconciler) executeAddFinalizer(resource client.Object,
 	rm annotresourcemodifv1.ResourceModifier, finalizer string) error {
 	existentFinalizers := resource.GetFinalizers()
+	if slices.Contains(existentFinalizers, finalizer) {
+		return nil
+	}
 	existentFinalizers = append(existentFinalizers, finalizer)
 
 	resource.SetFinalizers(existentFinalizers)
