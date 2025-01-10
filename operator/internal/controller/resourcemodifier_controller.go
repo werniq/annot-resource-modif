@@ -54,7 +54,8 @@ func (r *ResourceModifierReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	log := log.FromContext(ctx)
 
 	var resourceModifier annotresourcemodifv1.ResourceModifier
-	if err := r.Get(ctx, req.NamespacedName, &resourceModifier); err != nil {
+	var err error
+	if err = r.Get(ctx, req.NamespacedName, &resourceModifier); err != nil {
 		log.Error(err, "unable to fetch resourceModifier")
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -62,25 +63,41 @@ func (r *ResourceModifierReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	resource, err := r.determineResourceType(resourceModifier.Spec.ResourceData)
 	if err != nil {
 		log.Error(err, "Error determining resource type. Wrong resource type specified")
+		updateErr := r.updateErrorStatus(resourceModifier, err.Error())
+		if updateErr != nil {
+			return ctrl.Result{}, updateErr
+		}
 		return ctrl.Result{}, err
 	}
 
 	objectKey, err := r.determineResourceSelector(resourceModifier.Spec.ResourceData)
 	if err != nil {
 		log.Error(err, "Error determining selector. Make sure that either Name or Labels are specified")
+		updateErr := r.updateErrorStatus(resourceModifier, err.Error())
+		if updateErr != nil {
+			return ctrl.Result{}, updateErr
+		}
 		return ctrl.Result{}, err
 	}
 
 	err = r.Client.Get(ctx, objectKey, resource)
 	if err != nil {
 		log.Error(err, "Error while trying to get an object")
+		updateErr := r.updateErrorStatus(resourceModifier, err.Error())
+		if updateErr != nil {
+			return ctrl.Result{}, updateErr
+		}
 		return ctrl.Result{}, err
 	}
 
 	for _, annotation := range resourceModifier.Spec.Annotations {
 		err = r.executeAnnotation(annotation, resource)
 		if err != nil {
-
+			updateErr := r.updateErrorStatus(resourceModifier, err.Error())
+			if updateErr != nil {
+				return ctrl.Result{}, updateErr
+			}
+			return ctrl.Result{}, err
 		}
 	}
 
