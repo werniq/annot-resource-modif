@@ -21,11 +21,17 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 	assert.Nil(t, v1.AddToScheme(scheme))
 	assert.Nil(t, v2.AddToScheme(scheme))
 
-	pod := &v2.Pod{
+	podWithFinalizers := &v2.Pod{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:       "test-pod",
+			Name:       "test-podWithFinalizers",
 			Namespace:  "test-ns",
 			Finalizers: []string{"test-finalizer"},
+		},
+	}
+	podWithoutFinalizers := &v2.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-podWithFinalizers",
+			Namespace: "test-ns",
 		},
 	}
 	rm := &v1.ResourceModifier{
@@ -46,7 +52,7 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 	rm.Status.Conditions = make(map[string]string)
 	k8sClient = fake.NewClientBuilder().
 		WithScheme(scheme).
-		WithObjects(pod, rm).
+		WithObjects(podWithFinalizers, rm).
 		Build()
 
 	updateErrK8sClient := fake.NewClientBuilder().
@@ -55,7 +61,7 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 			Update: func(ctx context.Context, client client.WithWatch, obj client.Object, opts ...client.UpdateOption) error {
 				return errors.New("error during update")
 			}}).
-		WithObjects(pod, rm).
+		WithObjects(podWithFinalizers, rm).
 		Build()
 
 	type fields struct {
@@ -74,25 +80,37 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 	}{
 
 		{
-			name: "Error while removing finalizer [UPDATE ERROR]",
-			fields: fields{
-				Client: updateErrK8sClient,
-				Scheme: scheme,
-			},
-			args: args{
-				resource: pod,
-				rm:       *rm,
-			},
-			wantErr: true,
-		},
-		{
 			name: "Successful finalizer remove",
 			fields: fields{
 				Client: k8sClient,
 				Scheme: scheme,
 			},
 			args: args{
-				resource: pod,
+				resource: podWithFinalizers,
+				rm:       *rm,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Error while removing finalizer [UPDATE ERROR]",
+			fields: fields{
+				Client: updateErrK8sClient,
+				Scheme: scheme,
+			},
+			args: args{
+				resource: podWithoutFinalizers,
+				rm:       *rm,
+			},
+			wantErr: true,
+		},
+		{
+			name: "Pod with no finalizers - should fast fail",
+			fields: fields{
+				Client: k8sClient,
+				Scheme: scheme,
+			},
+			args: args{
+				resource: podWithoutFinalizers,
 				rm:       *rm,
 			},
 			wantErr: false,
