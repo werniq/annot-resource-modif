@@ -78,7 +78,18 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 		args    args
 		wantErr bool
 	}{
-
+		{
+			name: "Error while removing finalizer [UPDATE ERROR]",
+			fields: fields{
+				Client: updateErrK8sClient,
+				Scheme: scheme,
+			},
+			args: args{
+				resource: podWithFinalizers,
+				rm:       *rm,
+			},
+			wantErr: true,
+		},
 		{
 			name: "Successful finalizer remove",
 			fields: fields{
@@ -90,18 +101,6 @@ func TestResourceModifierReconciler_executeRemoveAnyFinalizerAnnotation(t *testi
 				rm:       *rm,
 			},
 			wantErr: false,
-		},
-		{
-			name: "Error while removing finalizer [UPDATE ERROR]",
-			fields: fields{
-				Client: updateErrK8sClient,
-				Scheme: scheme,
-			},
-			args: args{
-				resource: podWithoutFinalizers,
-				rm:       *rm,
-			},
-			wantErr: true,
 		},
 		{
 			name: "Pod with no finalizers - should fast fail",
