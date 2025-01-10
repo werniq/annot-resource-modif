@@ -77,6 +77,13 @@ func (r *ResourceModifierReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
+	for _, annotation := range resourceModifier.Spec.Annotations {
+		err = r.executeAnnotation(annotation, resource)
+		if err != nil {
+
+		}
+	}
+
 	return ctrl.Result{}, nil
 }
 
@@ -86,6 +93,17 @@ func (r *ResourceModifierReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&annotresourcemodifv1.ResourceModifier{}).
 		Named("resourcemodifier").
 		Complete(r)
+}
+
+// executeAnnotation
+//
+// This function observes the given annotation, and performs provided action on the resource.
+func (r *ResourceModifierReconciler) executeAnnotation(annotation string, resource client.Object) error {
+	switch annotation {
+
+	}
+
+	return nil
 }
 
 // determineResourceType analyzes resourceData from the arguments, and returns the object which was specified
