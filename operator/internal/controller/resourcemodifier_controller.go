@@ -28,6 +28,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"strconv"
 	"strings"
 
 	annotresourcemodifv1 "ericsson.com/resource-modif-annotations/api/v1"
@@ -132,6 +133,13 @@ func (r *ResourceModifierReconciler) executeAnnotation(annotation string, resour
 		// TODO: check this in validator
 		label := strings.Split(annotation, ":")
 		return r.executeAddLabel(resource, rm, label[1]+label[2])
+	case contains(annotation, "scale"):
+		desiredReplicasStr := strings.Split(annotation, ":")[1]
+		desiredReplicas, err := strconv.Atoi(desiredReplicasStr)
+		if err != nil {
+			return err
+		}
+		return r.executeScale(resource, rm, desiredReplicas)
 	}
 
 	return nil
