@@ -5,12 +5,19 @@ import (
 	annotresourcemodifv1 "ericsson.com/resource-modif-annotations/api/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"slices"
+	"strings"
 	"time"
 )
 
 const (
 	// successRemovingFinalizers
 	successRemovingFinalizers = "Successfully removed finalizers"
+
+	// successAddFinalizers
+	successAddFinalizers = "Successfully added finalizers"
+
+	// successAddLabel
+	successAddLabel = "Successfully added label"
 )
 
 // executeRemoveAnyFinalizerAnnotation
@@ -62,7 +69,39 @@ func (r *ResourceModifierReconciler) executeAddFinalizer(resource client.Object,
 		return err
 	}
 
-	err = r.updateStatusSuccess(rm, successRemovingFinalizers)
+	err = r.updateStatusSuccess(rm, successAddFinalizers)
+	if err != nil {
+		updateErr := r.updateErrorStatus(rm, err.Error())
+		if updateErr != nil {
+			return updateErr
+		}
+		return err
+	}
+
+	return nil
+}
+
+// executeAddLabel
+func (r *ResourceModifierReconciler) executeAddLabel(resource client.Object,
+	rm annotresourcemodifv1.ResourceModifier, label string) error {
+	labels := resource.GetLabels()
+	s := strings.Split(label, ":")
+	key, value := s[0], s[1]
+
+	if _, exists := labels[key]; exists {
+		return nil
+	}
+	labels[key] = value
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	err := r.Client.Update(ctx, resource)
+	if err != nil {
+		return err
+	}
+
+	err = r.updateStatusSuccess(rm, successAddLabel)
 	if err != nil {
 		updateErr := r.updateErrorStatus(rm, err.Error())
 		if updateErr != nil {

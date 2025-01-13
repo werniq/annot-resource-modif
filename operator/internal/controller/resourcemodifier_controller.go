@@ -121,13 +121,17 @@ func (r *ResourceModifierReconciler) SetupWithManager(mgr ctrl.Manager) error {
 // This function observes the given annotation, and performs provided action on the resource.
 func (r *ResourceModifierReconciler) executeAnnotation(annotation string, resource client.Object,
 	rm annotresourcemodifv1.ResourceModifier) error {
-	switch annotation {
-	case "removeAnyFinalizers":
+	switch {
+	case contains(annotation, "removeAnyFinalizers"):
 		return r.executeRemoveAnyFinalizerAnnotation(resource, rm)
-	case "addFinalizer":
+	case contains(annotation, "addFinalizer"):
 		// TODO: check this in validator
 		finalizer := strings.Split(annotation, ":")[1]
 		return r.executeAddFinalizer(resource, rm, finalizer)
+	case contains(annotation, "executeAddLabel"):
+		// TODO: check this in validator
+		label := strings.Split(annotation, ":")
+		return r.executeAddLabel(resource, rm, label[1]+label[2])
 	}
 
 	return nil
@@ -185,4 +189,8 @@ func (r *ResourceModifierReconciler) determineResourceSelector(resourceData anno
 	}
 
 	return objectKey, nil
+}
+
+func contains(a, b string) bool {
+	return strings.Contains(a, b)
 }
