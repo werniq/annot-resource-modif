@@ -118,7 +118,7 @@ func (r *ResourceModifierReconciler) executeRemoveLabel(resource client.Object,
 	rm annotresourcemodifv1.ResourceModifier, label string) error {
 	labels := resource.GetLabels()
 
-	if _, exists := labels[label]; exists {
+	if _, exists := labels[label]; !exists {
 		return nil
 	}
 	delete(labels, label)
