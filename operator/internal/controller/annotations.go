@@ -81,7 +81,7 @@ func (r *ResourceModifierReconciler) executeAddFinalizer(resource client.Object,
 	return nil
 }
 
-// executeAddLabel
+// executeAddLabel adds new label to the resource.
 func (r *ResourceModifierReconciler) executeAddLabel(resource client.Object,
 	rm annotresourcemodifv1.ResourceModifier, label string) error {
 	labels := resource.GetLabels()
@@ -113,7 +113,7 @@ func (r *ResourceModifierReconciler) executeAddLabel(resource client.Object,
 	return nil
 }
 
-// executeAddLabel
+// executeAddLabel removes label from the resource.
 func (r *ResourceModifierReconciler) executeRemoveLabel(resource client.Object,
 	rm annotresourcemodifv1.ResourceModifier, label string) error {
 	labels := resource.GetLabels()
