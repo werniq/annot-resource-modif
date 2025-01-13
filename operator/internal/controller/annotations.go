@@ -5,8 +5,6 @@ import (
 	annotresourcemodifv1 "ericsson.com/resource-modif-annotations/api/v1"
 	errs "errors"
 	v1 "k8s.io/api/apps/v1"
-	v2 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/util/remotecommand"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"slices"
 	"strings"
