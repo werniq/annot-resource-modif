@@ -191,6 +191,7 @@ func (r *ResourceModifierReconciler) determineResourceSelector(resourceData anno
 	return objectKey, nil
 }
 
+// contains is a wrapper for strings.Contains
 func contains(a, b string) bool {
 	return strings.Contains(a, b)
 }
