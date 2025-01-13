@@ -385,3 +385,133 @@ func TestResourceModifierReconciler_executeAddFinalizer1(t *testing.T) {
 		})
 	}
 }
+
+func TestResourceModifierReconciler_executeAddLabel(t *testing.T) {
+	scheme := runtime.NewScheme()
+	assert.Nil(t, v1.AddToScheme(scheme))
+	assert.Nil(t, v2.AddToScheme(scheme))
+
+	podWithoutLabels := &v2.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-podWithoutLabels",
+			Namespace: "test-ns",
+			Labels:    map[string]string{},
+		},
+	}
+
+	labelKey := "environment"
+	labelValue := "production"
+	desiredLabel := labelKey + ":" + labelValue
+
+	podWithLabel := &v2.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-podWithLabel",
+			Namespace: "test-ns",
+			Labels:    map[string]string{labelKey: labelValue},
+		},
+	}
+
+	rm := &v1.ResourceModifier{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "rm-test",
+		},
+		Spec: v1.ResourceModifierSpec{
+			ResourceData: v1.TargetResourceData{
+				Name:         "test-pod",
+				Namespace:    "test-ns",
+				ResourceType: "pod",
+			},
+			Annotations: []string{
+				"addLabel:" + desiredLabel,
+			},
+		},
+	}
+
+	rm.Status.Conditions = make(map[string]string)
+
+	k8sClient := fake.NewClientBuilder().
+		WithScheme(scheme).
+		WithObjects(podWithoutLabels, rm).
+		Build()
+
+	updateErrK8sClient := fake.NewClientBuilder().
+		WithScheme(scheme).
+		WithInterceptorFuncs(interceptor.Funcs{
+			Update: func(ctx context.Context, client client.WithWatch, obj client.Object, opts ...client.UpdateOption) error {
+				return errors.New("error during update")
+			}}).
+		WithObjects(podWithoutLabels, rm).
+		Build()
+
+	type fields struct {
+		Client client.Client
+		Scheme *runtime.Scheme
+	}
+	type args struct {
+		resource client.Object
+		rm       v1.ResourceModifier
+		label    string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "Label already exists",
+			args: args{
+				resource: podWithLabel,
+				rm:       *rm,
+				label:    desiredLabel,
+			},
+			fields: fields{
+				Client: k8sClient,
+				Scheme: scheme,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Failed to add label - update error",
+			args: args{
+				resource: podWithoutLabels,
+				rm:       *rm,
+				label:    desiredLabel,
+			},
+			fields: fields{
+				Client: updateErrK8sClient,
+				Scheme: scheme,
+			},
+			wantErr: true,
+		},
+		{
+			name: "Successful label addition",
+			args: args{
+				resource: podWithoutLabels,
+				rm:       *rm,
+				label:    desiredLabel,
+			},
+			fields: fields{
+				Client: k8sClient,
+				Scheme: scheme,
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &ResourceModifierReconciler{
+				Client: tt.fields.Client,
+				Scheme: tt.fields.Scheme,
+			}
+
+			err := r.executeAddLabel(tt.args.resource, tt.args.rm, tt.args.label)
+			if tt.wantErr {
+				assert.NotNil(t, err)
+			} else {
+				assert.Nil(t, err)
+			}
+		})
+	}
+}
