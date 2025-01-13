@@ -4,7 +4,6 @@ import (
 	"context"
 	v1 "ericsson.com/resource-modif-annotations/api/v1"
 	"errors"
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	v2 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -329,6 +328,32 @@ func TestResourceModifierReconciler_executeAddFinalizer1(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
+		{
+			name: "Failed add annotation run - annotation already exists",
+			args: args{
+				resource:  podWithDesiredFinalizer,
+				rm:        *rm,
+				finalizer: desiredFinalizer,
+			},
+			fields: fields{
+				Client: k8sClient,
+				Scheme: scheme,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Failed add annotation run - update error",
+			args: args{
+				resource:  podWithoutFinalizers,
+				rm:        *rm,
+				finalizer: desiredFinalizer,
+			},
+			fields: fields{
+				Client: updateErrK8sClient,
+				Scheme: scheme,
+			},
+			wantErr: true,
+		},
 		{
 			name: "Successful add annotation run",
 			args: args{
