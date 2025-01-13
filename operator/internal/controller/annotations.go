@@ -112,3 +112,33 @@ func (r *ResourceModifierReconciler) executeAddLabel(resource client.Object,
 
 	return nil
 }
+
+// executeAddLabel
+func (r *ResourceModifierReconciler) executeRemoveLabel(resource client.Object,
+	rm annotresourcemodifv1.ResourceModifier, label string) error {
+	labels := resource.GetLabels()
+
+	if _, exists := labels[label]; exists {
+		return nil
+	}
+	delete(labels, label)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	err := r.Client.Update(ctx, resource)
+	if err != nil {
+		return err
+	}
+
+	err = r.updateStatusSuccess(rm, successAddLabel)
+	if err != nil {
+		updateErr := r.updateErrorStatus(rm, err.Error())
+		if updateErr != nil {
+			return updateErr
+		}
+		return err
+	}
+
+	return nil
+}
