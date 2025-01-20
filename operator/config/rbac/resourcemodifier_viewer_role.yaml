@@ -1,0 +1,23 @@
+# permissions for end users to view resourcemodifiers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: operator
+    app.kubernetes.io/managed-by: kustomize
+  name: resourcemodifier-viewer-role
+rules:
+- apiGroups:
+  - annot-resource-modif.ericsson.com
+  resources:
+  - resourcemodifiers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - annot-resource-modif.ericsson.com
+  resources:
+  - resourcemodifiers/status
+  verbs:
+  - get
