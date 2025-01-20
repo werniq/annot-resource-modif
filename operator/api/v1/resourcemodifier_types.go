@@ -20,22 +20,55 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+// TargetResourceData is an object which will be used to retrieve a Kubernetes Resource,
+// which the user wants to edit.
+// This class will provide multiple ways to get a specific resource:
+// 1. By ResourceType, and Name (optionally - and namespace)
+// 2. By ResourceType, and Namespace
+// 3. ResourceType and Labels
+// At most one of the above should be chosen. Upon finding a match no further searches will be performed.
+//
+// TODO: Potentially, it may be possible to retrieve a list of objects, and perform modification on a list. However, I will introduce another CRD for this purpose
+type TargetResourceData struct {
+	// Labels field will be used to find a specific Kubernetes Resource by watching Labels
+	Labels map[string]string `json:"labels"`
+
+	// Name is used to get a resource with specific metadata.name
+	Name string `json:"name"`
+
+	// Namespace specifies namespace in which Resources should be searched. Default - default
+	// +kubebuilder:default=default
+	Namespace string `json:"namespace"`
+
+	// ResourceType is a required
+	// +required
+	ResourceType string `json:"resourceType"`
+}
 
 // ResourceModifierSpec defines the desired state of ResourceModifier.
 type ResourceModifierSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// ResourceData will be used to identify the particular resource which user wishes to update.
+	// If data specified in this field turned out to return more than 1 resource, it will result in error.
+	ResourceData TargetResourceData `json:"resourceData"`
 
-	// Foo is an example field of ResourceModifier. Edit resourcemodifier_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// Annotations are set of pre-defined rules of how the resource will be modified.
+	//
+	// For example: if user has specified following annotations, and a Pod resource:
+	// 	- removeAnyFinalizers
+	//  - sleep:50
+	// It will result in removing any finalizers Pod currently has, and executing a command to sleep for 50 seconds.
+	//
+	// All examples of annotations will be provided in README.
+	Annotations []string `json:"annotations"`
 }
 
 // ResourceModifierStatus defines the observed state of ResourceModifier.
 type ResourceModifierStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Conditions are used to describe current state of ResourceModifier.
+	// In case of errors, this field is updated, indicating that error had occurred.
+	// If Reconciliation was successful - this fields will also be updated, with
+	// successful condition type and appropriate message.
+	Conditions map[string]string `json:"conditions"`
 }
 
 // +kubebuilder:object:root=true
