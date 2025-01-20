@@ -94,7 +94,7 @@ func (r *ResourceModifierReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	for _, annotation := range resourceModifier.Spec.Annotations {
-		err = r.executeAnnotation(annotation, resource)
+		err = r.executeAnnotation(annotation, resource, resourceModifier)
 		if err != nil {
 			updateErr := r.updateErrorStatus(resourceModifier, err.Error())
 			if updateErr != nil {
@@ -119,9 +119,15 @@ func (r *ResourceModifierReconciler) SetupWithManager(mgr ctrl.Manager) error {
 // executeAnnotation
 //
 // This function observes the given annotation, and performs provided action on the resource.
-func (r *ResourceModifierReconciler) executeAnnotation(annotation string, resource client.Object) error {
+func (r *ResourceModifierReconciler) executeAnnotation(annotation string, resource client.Object,
+	rm annotresourcemodifv1.ResourceModifier) error {
 	switch annotation {
-
+	case "removeAnyFinalizers":
+		return r.executeRemoveAnyFinalizerAnnotation(resource, rm)
+	case "addFinalizer":
+		// TODO: check this in validator
+		finalizer := strings.Split(annotation, ":")[1]
+		return r.executeAddFinalizer(resource, rm, finalizer)
 	}
 
 	return nil
